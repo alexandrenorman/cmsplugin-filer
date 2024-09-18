@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 
 from django.db import models
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from cms.models import CMSPlugin
 
@@ -25,34 +25,46 @@ class FilerFile(CMSPlugin):
 
     The icon search is currently performed within get_icon_url; this is probably a performance concern.
     """
+
     STYLE_CHOICES = settings.CMSPLUGIN_FILER_FILE_STYLE_CHOICES
     DEFAULT_STYLE = settings.CMSPLUGIN_FILER_FILE_DEFAULT_STYLE
-    EXCLUDED_KEYS = ['href', 'target', ]
+    EXCLUDED_KEYS = [
+        "href",
+        "target",
+    ]
 
     title = models.CharField(_("title"), max_length=255, null=True, blank=True)
     file = FilerFileField(
-        verbose_name=_('file'),
+        verbose_name=_("file"),
         null=True,
         on_delete=models.SET_NULL,
     )
-    target_blank = models.BooleanField(_('Open link in new window'), default=False)
+    target_blank = models.BooleanField(_("Open link in new window"), default=False)
     style = models.CharField(
-        _('Style'), choices=STYLE_CHOICES, default=DEFAULT_STYLE, max_length=255, blank=True)
-    link_attributes = AttributesField(excluded_keys=EXCLUDED_KEYS, blank=True,
-                                      help_text=_('Optional. Adds HTML attributes to the rendered link.'))
+        _("Style"),
+        choices=STYLE_CHOICES,
+        default=DEFAULT_STYLE,
+        max_length=255,
+        blank=True,
+    )
+    link_attributes = AttributesField(
+        excluded_keys=EXCLUDED_KEYS,
+        blank=True,
+        help_text=_("Optional. Adds HTML attributes to the rendered link."),
+    )
     cmsplugin_ptr = models.OneToOneField(
         to=CMSPlugin,
-        related_name='%(app_label)s_%(class)s',
+        related_name="%(app_label)s_%(class)s",
         parent_link=True,
         on_delete=models.CASCADE,
     )
 
-    objects = FilerPluginManager(select_related=('file',))
+    objects = FilerPluginManager(select_related=("file",))
 
     def get_icon_url(self):
         if self.file_id:
-            return self.file.icons['32']
-        return ''
+            return self.file.icons["32"]
+        return ""
 
     def file_exists(self):
         if self.file.file.name != None:
@@ -61,9 +73,9 @@ class FilerFile(CMSPlugin):
 
     def get_file_name(self):
         if not self.file_id:
-            return ''
+            return ""
 
-        if self.file.name in ('', None):
+        if self.file.name in ("", None):
             name = "%s" % (self.file.original_filename,)
         else:
             name = "%s" % (self.file.name,)
@@ -79,8 +91,8 @@ class FilerFile(CMSPlugin):
             # added if, because it raised attribute error when file wasnt defined
             return self.get_file_name()
         return "<empty>"
-    
-    class Meta:
-        app_label = 'cmsplugin_filer_file'
 
-    search_fields = ('title',)
+    class Meta:
+        app_label = "cmsplugin_filer_file"
+
+    search_fields = ("title",)
